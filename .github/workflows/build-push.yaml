@@ -47,8 +47,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-push:
-    needs: prepare
     name: Push Docker image to multiple registries
+    needs: prepare
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         arch:
@@ -69,8 +70,9 @@ jobs:
             ghcr.io/${{ github.repository }}
 
   generate-sbom:
-    needs: build-and-push
     name: Generate SBOM
+    needs: build-and-push
+    runs-on: ubuntu-latest
     steps:
       - name: Generate SBOM
         uses: anchore/sbom-action@07978da4bdb4faa726e52dfc6b1bed63d4b56479 # v0.13.3
