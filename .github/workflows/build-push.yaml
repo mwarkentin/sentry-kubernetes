@@ -18,7 +18,7 @@ on:
 
 jobs:
   prepare:
-    name: Push Docker image to multiple registries
+    name: Prepare registries
     runs-on: ubuntu-latest
     steps:
       # https://github.com/docker/setup-qemu-action
@@ -69,13 +69,13 @@ jobs:
             tonyo/sentry-kubernetes
             ghcr.io/${{ github.repository }}
 
-  generate-sbom:
-    name: Generate SBOM
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate SBOM
-        uses: anchore/sbom-action@07978da4bdb4faa726e52dfc6b1bed63d4b56479 # v0.13.3
-        with:
-          image: tonyo/sentry-kubernetes:latest
-          format: text
+  # generate-sbom:
+  #   name: Generate SBOM
+  #   needs: build-and-push
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Generate SBOM
+  #       uses: anchore/sbom-action@07978da4bdb4faa726e52dfc6b1bed63d4b56479 # v0.13.3
+  #       with:
+  #         image: tonyo/sentry-kubernetes:latest
+  #         format: text
