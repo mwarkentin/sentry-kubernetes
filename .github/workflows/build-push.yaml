@@ -17,12 +17,9 @@ on:
       - build/**
 
 jobs:
-  push_to_registries:
+  prepare:
     name: Push Docker image to multiple registries
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -49,16 +46,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+  build-and-push:
+    needs: prepare
+    name: Push Docker image to multiple registries
+    strategy:
+      matrix:
+        arch:
+          - linux/amd64
+          - linux/arm64
+    permissions:
+      packages: write
+      contents: read
+    steps:
       - name: Build and push Docker images
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: "${{ matrix.arch }}"
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: |
             tonyo/sentry-kubernetes
             ghcr.io/${{ github.repository }}
 
+  generate-sbom:
+    needs: build-and-push
+    name: Generate SBOM
+    steps:
       - name: Generate SBOM
         uses: anchore/sbom-action@07978da4bdb4faa726e52dfc6b1bed63d4b56479 # v0.13.3
         with:
